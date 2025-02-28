@@ -1,6 +1,6 @@
 <h1 align="center">
 SnowPro Core Certification Study Guide</h1>
-<p align="center">This is the code repository for <a href ="https://www.packtpub.com/en-us/product/snowpro-core-certification-study-guide-first-edition/9781835884669"> SnowPro Core Certification Study Guide</a>, published by Packt.
+<p align="center">This is the code repository for <a href ="https://www.packtpub.com/en-us/product/snowpro-core-certification-study-guide-9781835884676"> SnowPro Core Certification Study Guide</a>, published by Packt.
 </p>
 
 <h2 align="center">
@@ -19,7 +19,7 @@ Jatin Verma</p>
 </p>
 <details open> 
   <summary><h2>About the book</summary>
-<a href="https://www.packtpub.com/product/unity-cookbook-fifth-edition/9781805123026">
+<a href="https://www.packtpub.com/en-us/product/snowpro-core-certification-study-guide-9781835884676">
 <img src="https://content.packt.com/B22119/cover_image_small.jpg" alt="Unity Cookbook, Fifth Edition" height="256px" align="right">
 </a>
 

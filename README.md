@@ -12,9 +12,7 @@ Jatin Verma</p>
 <p align="center">
   <a href="https://packt.link/free-ebook/9781835884669"><img width="32px" alt="Free PDF" title="Free PDF" src="https://cdn-icons-png.flaticon.com/512/4726/4726010.png"/></a>
  &#8287;&#8287;&#8287;&#8287;&#8287;
-  <a href="https://packt.link/gbp/9781835884669"><img width="32px" alt="Graphic Bundle" title="Graphic Bundle" src="https://cdn-icons-png.flaticon.com/512/2659/2659360.png"/></a>
-  &#8287;&#8287;&#8287;&#8287;&#8287;
-   <a href="https://www.amazon.co.uk/SnowPro-Core-Certification-Study-Guide/dp/1835884660/ref=tmm_pap_swatch_0?_encoding=UTF8&sr="><img width="32px" alt="Amazon" title="Get your copy" src="https://cdn-icons-png.flaticon.com/512/15466/15466027.png"/></a>
+   <a href="https://www.amazon.com/SnowPro-Core-Certification-Study-Guide/dp/1835884660/ref=tmm_pap_swatch_0?_encoding=UTF8&sr="><img width="32px" alt="Amazon" title="Get your copy" src="https://cdn-icons-png.flaticon.com/512/15466/15466027.png"/></a>
   &#8287;&#8287;&#8287;&#8287;&#8287;
 </p>
 <details open> 

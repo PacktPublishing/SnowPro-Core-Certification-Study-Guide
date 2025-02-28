@@ -1,0 +1,34 @@
+-- Setting up direct data sharing
+-- Create a new share in Snowflake called 'DCONINSIGHTS_SHARE'
+CREATE SHARE DCONINSIGHTS_SHARE;
+
+-- Add the tables to be shared to 'DCONINSIGHTS_SHARE'
+-- Assuming 'transaction_summary' and 'interest_rate_data' tables are in the 'DataTrix_DB' database and 'PUBLIC' schema
+ALTER SHARE DCONINSIGHTS_SHARE ADD TABLE DataTrix_DB.PUBLIC.transaction_summary;
+ALTER SHARE DCONINSIGHTS_SHARE ADD TABLE DataTrix_DB.PUBLIC.interest_rate_data;
+
+-- Granting access permissions
+-- Grant the USAGE privilege on the database and schema to the share
+GRANT USAGE ON DATABASE DataTrix_DB TO SHARE DCONINSIGHTS_SHARE;
+GRANT USAGE ON SCHEMA DataTrix_DB.PUBLIC TO SHARE DCONINSIGHTS_SHARE;
+
+-- Grant SELECT privilege on the tables being shared
+GRANT SELECT ON TABLE DataTrix_DB.PUBLIC.transaction_summary TO
+SHARE DCONINSIGHTS_SHARE;
+GRANT SELECT ON TABLE DataTrix_DB.PUBLIC.interest_rate_data TO
+SHARE DCONINSIGHTS_SHARE;
+
+-- Sharing the data with DconInsights
+-- Assume DCONINSIGHTS_ACCOUNT is the account identifier provided by DconInsights
+ALTER SHARE DCONINSIGHTS_SHARE ADD ACCOUNT = DCONINSIGHTS_ACCOUNT;
+
+-- Consuming the share
+-- In the DconInsights account, create a database from the share
+-- Assume DataTrix_ACCOUNT is the account identifier provided by DataTrix and DataTrix_org is the organization name.
+CREATE DATABASE DataTrix_shared_DB FROM SHARE DataTrix_org.DataTrix_ACCOUNT.DCONINSIGHTS_SHARE;
+
+-- Testing data access
+-- Query to verify access to transaction summary
+SELECT * FROM DataTrix_shared_DB.PUBLIC.transaction_summary LIMIT 10;
+-- Query to verify access to interest rate data
+SELECT * FROM DataTrix_shared_DB.PUBLIC.interest_rate_data LIMIT 10;

@@ -1,0 +1,41 @@
+-- Querying Historical Data in Time Travel
+-- Using timestamps
+SELECT * 
+FROM sales_data 
+AT (TIMESTAMP => '2024-09-01 10:00:00');
+
+-- Using offsets
+SELECT * 
+FROM sales_data 
+AT (OFFSET => -1800);  -- 1800 seconds = 30 minutes
+
+-- Using query IDs
+SELECT * 
+FROM sales_data 
+BEFORE (STATEMENT => 'QUERY_ID'); -- Replace 'QUERY_ID' with the actual ID of the query
+
+
+-- Restoring Objects Using Time Travel
+-- Dropping a table
+DROP TABLE sales_data;
+
+-- Restoring a dropped table
+UNDROP TABLE sales_data;
+
+
+-- Changing retention period for tables
+CREATE TABLE table_name (
+ column1 int,
+ column2 varchar)
+ DATA_RETENTION_TIME_IN_DAYS = 2;
+ 
+ALTER TABLE table_name (
+ SET DATA_RETENTION_TIME_IN_DAYS = 0; --  Retention period of 0 "disables" time travel
+
+-- Altering an account's default retention period
+ALTER ACCOUNT SET 
+DATA_RETENTION_TIME_IN_DAYS = 2 -- This will make default retention period = 2 for all objects created in that account 
+
+-- Setting the minimum retention period
+ALTER ACCOUNT SET 
+MIN_DATA_RETENTION_TIME_IN_DAYS = 2;

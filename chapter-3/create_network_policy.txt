@@ -1,0 +1,24 @@
+-- Exercise 3.1
+-- Create and use a database
+CREATE DATABASE DataTrix_db;
+USE DATABASE DataTrix_db;
+
+-- Create a network rule to restrict inbound requests using the following:
+CREATE OR REPLACE  NETWORK RULE block_access
+   TYPE =  IPV4 
+   VALUE_LIST = ('127.0.0.1/27')
+   MODE = INGRESS
+   
+ 
+-- Attach the network rule to a network policy
+CREATE OR REPLACE NETWORK POLICY block_access_policy
+BLOCKED_NETWORK_RULE_LIST = (‘block_access’)
+
+-- Create a user named ANALYST_A with a password
+CREATE OR REPLACE USER ANALYST_A PASSWORD=’randompassword’
+
+-- Restrict ANALYST_A’s inbound request
+ALTER USER ANALYST_A SET NETWORK_POLICY = block_access_policy
+
+-- Verify whether the  network policy is attached to the user
+SHOW PARAMETERS LIKE ‘network_policy’ in USER ANALYST_A;

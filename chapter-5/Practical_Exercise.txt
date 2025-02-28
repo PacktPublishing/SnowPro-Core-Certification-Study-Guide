@@ -1,0 +1,21 @@
+-- Create a multi-cluster warehouse using the following:
+CREATE WAREHOUSE Ecom_trans
+WITH WAREHOUSE_TYPE = STANDARD
+WAREHOUSE_SIZE = 'LARGE'
+MIN_CLUSTER_COUNT = 2
+MAX_CLUSTER_COUNT = 5
+SCALING_POLICY = 'STANDARD'
+AUTO_SUSPEND = 300
+AUTO_RESUME = TRUE;
+
+-- Enable the query acceleration service as shown here:
+ALTER WAREHOUSE Ecom_trans SET
+ENABLE_QUERY_ACCELERATION = TRUE;
+
+-- Add clustering keys using the following:
+ALTER TABLE product_catalog
+CLUSTER BY (category, brand);
+
+-- Enable the search optimization service as shown here:
+ALTER TABLE product_catalog
+ADD SEARCH_OPTIMIZATION;

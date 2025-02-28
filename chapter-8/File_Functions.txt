@@ -1,0 +1,20 @@
+-- GET_STAGE_LOCATION : This returns the bucket path. In this example, it’s s3://bucket_name.
+SELECT GET_STAGE_LOCATION('my_stage');
+
+-- GET_RELATIVE_PATH: The output is my-file.csv.
+SELECT GET_RELATIVE_PATH('my_stage', 's3://my-bucket/my-folder/my-file.csv');
+
+-- GET_ABSOLUTE_PATH: This returns the following file path: s3://my-bucket/my-folder/my-file.csv.
+SELECT GET_ABSOLUTE_PATH('my_stage', '/my-file.csv');
+
+
+-- GET_PRESIGNED_URL: This will generate a URL that can be accessed via a web browser for a limited time.
+SELECT GET_PRESIGNED_URL('my_stage', 'my-file.csv');
+
+
+-- BUILD_SCOPED_FILE_URL: This URL can be shared with users, allowing them to access the file securely.
+SELECT BUILD_SCOPED_FILE_URL('my_stage', 'my-file.csv');
+
+
+-- BUILD_STAGE_FILE_URL: This function is useful for referencing files stored in stages within your Snowflake queries or procedures.
+SELECT BUILD_STAGE_FILE_URL('my_stage', 'my-file.csv');

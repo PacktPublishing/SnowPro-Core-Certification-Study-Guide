@@ -1,0 +1,13 @@
+-- cloning a database
+CREATE DATABASE sales_clone CLONE sales;
+
+-- Snowflake Cloning with Time Travel
+-- Cloning from a specific point in time
+CREATE TABLE Trans_tbl_new 
+CLONE Trans_tbl
+BEFORE (TIMESTAMP => 'timestamp')
+
+-- Cloning from a specific query ID
+CREATE TABLE Trans_tbl_new 
+CLONE Trans_tbl
+BEFORE (STATEMENT => 'QUERY_ID');

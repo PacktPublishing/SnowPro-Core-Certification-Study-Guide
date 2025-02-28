@@ -1,0 +1,34 @@
+-- The following command shows how to load data from an internal stage:
+copy into table1 from '@mystage/path 1/file 1.csv';
+
+-- The following command shows how to load data from an external stage:
+COPY INTO customer_transactions FROM @my_data_stage/customer_transactions.csv 
+FILE_FORMAT = (TYPE = 'CSV', FIELD_DELIMITER =',', SKIP_HEADER = 1 );
+
+-- The following command shows how to load data from an external stage using the file pattern:
+copy into mytable FROM @my_data_stage file_format = (type ='CSV') pattern='.*/.*/.*[.]csv[.]gz';
+
+-- The following command shows how to run the COPY INTO command to validate data before loading it using the command with copyOptions and return only the first 10 rows in case of errors:
+COPY INTO my_table FROM @my_stage/data.csv 
+FILE_FORMAT = (TYPE ='CSV' FIELD_DELIMITER = ',') 
+VALIDATION_MODE = RETURN_10_ROWS;
+
+-- The following command shows how to run the COPY INTO command to validate data before loading it using the command with copyOptions and return all rows with errors:
+COPY INTO my_table FROM @my_stage/data.csv
+FILE_FORMAT = (TYPE = 'CSV' FIELD_DELIMITER = ',') VALIDATION_
+MODE = RETURN_ERRORS;
+
+-- The following command shows how to run the COPY INTO command to validate data before loading it using the command with copyOptions and return all rows with errors, including errors in the previous load:
+COPY INTO my_table FROM @my_stage/data.csv
+FILE_FORMAT = (TYPE = 'CSV' FIELD_DELIMITER = ',')
+VALIDATION_MODE = RETURN_ALL_ERRORS;
+
+-- Replace existing data with the following code (use with caution because it skips the full file if an error is found, instead of loading the data without the error):
+COPY INTO my_table FROM @my_stage/data.csv
+FILE_FORMAT = (TYPE = 'CSV' FIELD_DELIMITER = ',')
+ON_ERROR = SKIP_FILE;
+
+-- You can use the following code to load only selected column data into a Snowflake table:
+COPY INTO customer34 (customer_id, name, city ) FROM ( SELECT t.$1,
+t.$2, t.$3
+FROM @my_ext_stage11 (file_format => 'myformat') t);

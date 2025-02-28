@@ -1,0 +1,22 @@
+-- Set up the replication
+-- change role to ORGADMIN
+show organization accounts;
+ 
+-- Enable replication for each source and target account in your organization
+SELECT
+system$global_account_set_parameter('<org_name>.<account_name>',  'ENABLE_ACCOUNT_DATABASE_REPLICATION', 'true');
+
+-- Enable replication for a specific database for selected accounts:
+-- change role to ACCOUNTADMIN
+ALTER DATABASE my_database ENABLE REPLICATION TO ACCOUNTS <org_name>.<account_name>;
+-- You can also enable multiple accounts for database replication:
+ALTER DATABASE my_database ENABLE REPLICATION TO ACCOUNTS <org_name>.<account_name>, <org_name>.<account_name2>;
+
+-- Create a replica in the consumer account:
+-- change role to ACCOUNTADMIN
+ALTER DATABASE my_database ENABLE REPLICATION TO ACCOUNTS <org_name>.<account_name>;
+-- You can enable multiple accounts for database replication here, too:
+ALTER DATABASE my_database ENABLE REPLICATION TO ACCOUNTS <org_name>.<account_name>, <org_name>.<account_name2>;
+
+-- Refresh the database:
+ALTER DATABASE my_db1 REFRESH

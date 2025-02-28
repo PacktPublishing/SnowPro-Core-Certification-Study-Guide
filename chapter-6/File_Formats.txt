@@ -1,0 +1,22 @@
+-- You can create a CSV file format object with a comma as the field delimiter and skip the header:
+CREATE FILE FORMAT csv_file_format
+TYPE = CSV
+FIELD_DELIMITER =','
+SKIP_HEADER = 1;
+
+-- You can specify the file format directly in the COPY INTO command and can also specify the file format object with the stage using the following commands:
+CREATE STAGE <stagename>
+FILE_FORMAT = (FORMAT_NAME = <fileformatname >);
+
+-- You can specify the file format with the COPY command with different methods, as shown in the following code extract:
+COPY INTO table_name
+FROM @stagename
+FILE_FORMAT = (FORMAT_NAME = <fileformatname >);
+
+COPY INTO sales_data_table
+FROM @my_stage/sales_data.csv
+FILE_FORMAT = (TYPE = 'CSV' FIELD_DELIMITER = ',');
+
+COPY INTO product_data_table
+FROM @product_stage/products.json
+FILE_FORMAT = (TYPE = 'JSON');

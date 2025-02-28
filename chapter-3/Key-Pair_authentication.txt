@@ -1,0 +1,15 @@
+-- Open the terminal and run the following command
+-- generate a 2,048-bit private key
+openssl genrsa 2048 | openssl pkcs8 -topk8 -v2 des3 -inform PEM -out rsa_key.p8
+
+-- generate a public key
+openssl rsa -in rsa_key.p8 -pubout -out rsa_key.pub
+
+-- assign the public key to a Snowflake user, as shown here
+
+CREATE USER developer_A RSA_PUBLIC_KEY=’<contents of rsa_pub.pub>’
+
+-- verify the user’s public key fingerprint
+DESC USER developer_A;
+SELECT TRIM((SELECT "value" FROM TABLE(RESULT_SCAN(LAST_QUERY_ID()))
+  WHERE "property" = 'RSA_PUBLIC_KEY_FP'), 'SHA256:');

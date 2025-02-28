@@ -1,0 +1,23 @@
+-- You can create a stored procedure in SQL to archive old data using the following code:
+CREATE OR REPLACE PROCEDURE archive_old_data(threshold_date
+DATE)
+RETURNS STRING
+LANGUAGE SQL
+AS
+$$
+BEGIN
+--Insert old records into the archive table:
+INSERT INTO transaction_data_archive
+SELECT *
+FROM transaction_data
+WHERE transaction_date < :threshold_date;
+--Delete old records from the transaction_data table:
+DELETE FROM transaction_data
+WHERE transaction_date < :threshold_date;
+RETURN 'Archiving completed for transactions before ' || :threshold_date;
+END;
+$$;
+
+
+-- Call the archive_old_data stored procedure to archive transactions older than 2023-03-01 using the following code:
+CALL archive_old_data('2023-03-01');

@@ -1,0 +1,71 @@
+-- Create the orders table:
+CREATE OR REPLACE TABLE orders (
+order_id INT,
+order_date DATE,
+customer_id INT,
+order_amount INT,
+discount_code STRING
+);
+
+-- Insert sample data into orders:
+INSERT INTO orders (order_id, order_date, customer_id, order_amount, discount_code) VALUES
+(1, '2024-08-28', 101, 100, 'DISC10'),
+(2, '2024-08-28', 102, 150, 'DISC20'),
+(3, '2024-08-29', 103, 200, 'DISC10'),
+(4, '2024-08-29', 104, 250, 'DISC30');
+
+-- Create a stream on the orders table:
+CREATE OR REPLACE STREAM orders_stream ON TABLE orders SHOW_INITIAL_ROWS = TRUE;
+SELECT * FROM orders_stream;
+
+
+-- Create a UDF to calculate discounts:
+CREATE OR REPLACE FUNCTION calculate_discount
+(order_amount DECIMAL, 
+discount_code STRING)
+RETURNS DECIMAL
+LANGUAGE SQL
+AS
+$$
+CASE
+WHEN discount_code = 'DISC10' THEN order_amount * 0.10
+WHEN discount_code = 'DISC20' THEN order_amount * 0.20
+WHEN discount_code = 'DISC30' THEN order_amount * 0.30
+ELSE 0
+END
+$$;
+
+-- Create a daily_sales_summary table:
+CREATE OR REPLACE TABLE daily_sales_summary (
+sales_date DATE,
+total_sales DECIMAL(10, 2)
+);
+
+-- Create a stored procedure to aggregate sales:
+CREATE OR REPLACE PROCEDURE aggregate_daily_sales()
+RETURNS STRING
+LANGUAGE SQL
+AS
+$$
+INSERT INTO daily_sales_summary (sales_date, total_sales)
+SELECT order_date, SUM(order_amount - calculate_
+discount(order_amount, discount_code))
+FROM orders_stream
+GROUP BY order_date;
+Practice Questions 23
+$$;
+
+CALL aggregate_daily_sales();
+
+SELECT * FROM daily_sales_summary;
+
+
+-- Create a task to automate the stored procedure:
+CREATE OR REPLACE TASK daily_sales_task
+WAREHOUSE = 'MY_WAREHOUSE'
+SCHEDULE = 'USING CRON 0 0 * * * UTC'
+AS
+CALL aggregate_daily_sales();
+
+-- Activate the task:
+ALTER TASK daily_sales_task RESUME;

@@ -1,0 +1,33 @@
+-- create a share object
+CREATE SHARE sales_share;
+
+-- add specific objects (e.g., tables and views) to it. 
+GRANT SELECT ON TABLE sales_data.public.sales_info TO SHARE sales_share;
+
+-- specify which accounts can access the share. You do this by adding the consumer accounts to the share. You need the account identifier of the consumer account to add them to the share. 
+ALTER SHARE sales_share ADD ACCOUNTS = consumer_account_identifier;
+
+-- On the consumer side, create a read-only database from the share you provided.
+CREATE DATABASE shared_sales_data FROM SHARE provider_account_identifier.sales_share;
+
+
+
+-- Sharing Data Using a Reader Account
+-- Note: Users can only create reader accounts with administrative privileges!
+-- Create a reader account using the Snowflake UI or SQL command:
+CREATE MANAGED ACCOUNT reader_account_name ADMIN_NAME = 'admin_username' ADMIN_PASSWORD = 'password';
+--Check the url of created MANAGED ACCOUNT
+show managed accounts;
+
+-- Use the following command to create a share named my_share:
+CREATE SHARE my_share;
+
+-- Grant access to the desired objects. 
+GRANT SELECT ON DATABASE my_database TO SHARE my_share;
+
+-- The following command is used to add a consumer account to a share named my_share:
+ALTER SHARE my_share ADD ACCOUNT = 'reader_account_name';
+
+-- Once logged in to reader account, the consumer can create a read-only database from the share, as shown here:
+-- run below commands in reader account
+CREATE DATABASE shared_database FROM SHARE provider_account_identifier.my_share;

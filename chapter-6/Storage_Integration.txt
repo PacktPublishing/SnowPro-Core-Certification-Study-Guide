@@ -1,0 +1,18 @@
+-- We create a storage integration named my_s3_integration that stores the credentials for accessing your S3 bucket:
+CREATE [ OR REPLACE ] STORAGE INTEGRATION [IF NOT EXISTS] <name>
+TYPE = EXTERNAL_STAGE
+ENABLED = { TRUE | FALSE }
+STORAGE_PROVIDER = 'S3'
+STORAGE_AWS_ROLE_ARN = '<iam_role>' -- IAM role with S3 access
+STORAGE_ALLOWED_LOCATIONS = ('*')
+STORAGE_BLOCKED_LOCATIONS = ('s3://mybucket3/path3/', 's3://mybucket4/path4/');
+
+-- The external stage, my_social_data_stage, references the S3 location (@s3://my-s3-bucket/social-data) and utilizes my_s3_integration for authentication:
+CREATE STAGE my_stage
+URL = 's3://my-s3-bucket/social-data'
+STORAGE_INTEGRATION = my_s3_integration;
+
+-- The COPY INTO command leverages the external stage, eliminating the need to specify credentials directly. Snowflake automatically authenticates with S3 using the configured storage integration:
+COPY INTO social_media_data_table
+FROM @my_social_data_stage/facebook_data.csv
+FILE_FORMAT = (TYPE = 'CSV' FIELD_DELIMITER = ',');

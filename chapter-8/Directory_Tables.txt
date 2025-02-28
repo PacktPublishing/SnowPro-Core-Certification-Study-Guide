@@ -1,0 +1,17 @@
+-- Create the external stage with the directory table enabled:
+create or replace stage s3_stage_directory_table url="{s3 location}"
+credentials=(aws_key_id='{AWS Access Key}'
+aws_secret_key='{AWS Secret Key}')
+Directory=(ENABLE=TRUE); -- to create stage as a directory table
+
+list @s3_stage_directory_table;
+
+-- Refresh the stage and query the directory table:
+Alter stage s3_stage_directory_table refresh;
+select * from directory(@s3_stage_directory_table);
+
+
+-- Count the PDF pages for all files available in the stage:
+SELECT RELATIVE_PATH, 
+count_of_pages_udf(BUILD_SCOPED_FILE_URL(@s3_stage_directory_table, RELATIVE_PATH )) as pdf_page_count
+FROM directory(@s3_stage_directory_table);

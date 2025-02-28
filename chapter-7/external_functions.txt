@@ -1,0 +1,8 @@
+-- Create an external function in Snowflake
+CREATE EXTERNAL FUNCTION my_external_function(n INTEGER, v VARCHAR)
+RETURNS VARIANT
+API_INTEGRATION = <api_integration_name>
+AS '<resource_url>';
+
+-- use the external function within your Snowflake SQL queries to interact with the remote service:
+select my_external_function(n, v) from my_table;

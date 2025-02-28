@@ -1,0 +1,21 @@
+-- create an external table from the external stage. In this code, we are creating the external table directly without specifying a schema:
+CREATE OR REPLACE EXTERNAL TABLE emp_table_noschema
+WITH LOCATION = @s3_stage
+FILE_FORMAT = (TYPE = CSV SKIP_HEADER = 1);
+
+-- Then, we create an external table with a specified schema:
+CREATE OR REPLACE EXTERNAL TABLE emp_table_schema(
+EMPLOYEE_ID varchar AS (value:c1::varchar),
+NAME varchar AS (value:c2::varchar),
+External Tables in Snowflake 15
+SALARY number AS (value:c3::number),
+DEPARTMENT_ID number AS (value:c4::number),
+JOINING_DATE date AS TO_DATE(value:c5::varchar,'YYYY-MM-DD')
+)
+LOCATION=@s3_stage
+FILE_FORMAT = (TYPE = CSV SKIP_HEADER = 1);
+
+
+-- query the external table
+select * from emp_table_noschema;
+select * from emp_table_schema;

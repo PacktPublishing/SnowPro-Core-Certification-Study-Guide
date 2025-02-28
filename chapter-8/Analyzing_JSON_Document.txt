@@ -1,0 +1,34 @@
+-- Create a stage and a table with the VARIANT data type and load data into the table:
+CREATE OR REPLACE STAGE my_stage;
+
+CREATE TABLE Students (
+details VARIANT
+);
+
+COPY INTO Students
+FROM @my_stage/students.json
+FILE_FORMAT = (TYPE = 'JSON');
+
+-- Query data from the table and name the columns based on the JSON file:
+SELECT
+details:accounting[0].age as age,
+details:accounting[0].firstName::STRING as firstname
+from students;
+
+-- Use the FLATTEN function to flatten the data and create a tabular format of JSON data:
+SELECT
+'accounting' AS department,
+a.value:firstName::STRING AS firstName,
+a.value:lastName::STRING AS lastName,
+a.value:age::NUMBER AS age
+FROM students,
+LATERAL FLATTEN(input => details:accounting) a -- Flatten the
+"accounting" array
+UNION ALL
+SELECT
+'sales' AS department,
+s.value:firstName::STRING AS firstName,
+s.value:lastName::STRING AS lastName,
+s.value:age::NUMBER AS age
+FROM students,
+LATERAL FLATTEN(input => details:sales) s;

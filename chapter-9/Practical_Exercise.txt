@@ -1,0 +1,25 @@
+-- Recover sales_tbl and customers_tbl using Time Travel in Snowflake.
+UNDROP TABLE sales_tbl;
+UNDROP TABLE customers_tbl;
+
+
+-- Create a clone of the database to establish a testing environment.
+CREATE DATABASE testing_Production_db CLONE Production_db;
+
+-- Set up replication of the critical database to a new region.
+-- Enable replication for source account:
+-- change role to ORGADMIN
+show organization accounts;
+
+-- Enable replication for each source and target account in your organization
+SELECT system$global_account_set_parameter('<org_name>.<account_name>',  'ENABLE_ACCOUNT_DATABASE_REPLICATION', 'true');
+
+-- Enable replication for a specific database for selected accounts.
+-- change role to ACCOUNTADMIN
+ALTER DATABASE my_database ENABLE REPLICATION TO ACCOUNTS <org_name>.<account_name>;
+
+-- Create replica in consumer account.
+CREATE DATABASE my_database AS REPLICA OF <org_name>.<account_name>.my_database;
+
+-- Refresh database.
+ALTER DATABASE my_db1 REFRESH ;

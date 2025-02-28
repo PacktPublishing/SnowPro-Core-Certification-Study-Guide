@@ -1,0 +1,43 @@
+-- create an external stage and load data using the COPY command in the raw_marketing_data table in Snowflake by selecting the required columns
+COPY INTO raw_marketing_data 
+(timestamp, campaign_id, user_id, clicks)
+FROM (
+SELECT
+$1 AS timestamp,
+$2 AS campaign_id,
+$3 AS user_id,
+$4 AS clicks
+FROM @my_stage/marketing_data.csv
+)
+FILE_FORMAT = (TYPE = 'CSV' FIELD_DELIMITER = ',' skip_header = 1);
+
+-- perform aggregation on the data using SQL queries and load it into the campaign_summary table using the INSERT INTO command, as shown in the following code extract:
+INSERT INTO campaign_summary 
+(campaign_id, total_clicks, unique_users, avg_clicks_per_user)
+SELECT
+campaign_id,
+COUNT(*) AS total_clicks,
+COUNT(DISTINCT user_id) AS unique_users,
+AVG(clicks) AS avg_clicks_per_user
+FROM raw_marketing_data
+GROUP BY campaign_id;
+
+
+-- Scalar Functions
+SELECT SUBSTRING('Hello, world!', 7, 5) AS extracted_substring;
+
+-- Aggregate Functions
+SELECT COUNT(*) AS total_rows FROM raw_marketing_data;
+
+-- Window Functions
+SELECT *, RANK() OVER (PARTITION BY campaign_id ORDER BY clicks DESC)
+AS campaign_rank FROM raw_marketing_data;
+
+-- Table Functions
+SELECT * FROM TABLE(SPLIT_TO_TABLE('apple,banana,orange', ','));
+
+-- System Functions
+SELECT SYSTEM$TYPEOF(123);
+
+-- Estimating Functions
+SELECT APPROX_PERCENTILE(clicks, 0.9) AS approx_percentile_90 FROM raw_marketing_data;

@@ -1,0 +1,17 @@
+-- unloading data to stage
+COPY INTO @my_s3_stage/customer_data.csv
+FROM customer_table;
+
+-- use a SELECT statement with the COPY statement to transform data before unloading it.
+COPY INTO @stage_name
+FROM (SELECT id, name, start_date
+FROM table_name);
+
+
+COPY INTO @stage_name
+FROM (SELECT id, name, start_date
+FROM table_name)
+FILE_FORMAT=(TYPE=CSV)
+HEADER = TRUE -- Include Headers
+SINGLE = TRUE -- Everything in one file
+MAX_FILE_SIZE = 419430400 -- Size in bytes (400MB)

@@ -1,0 +1,21 @@
+-- Create materialized view
+CREATE MATERIALIZED VIEW sample_mat_view AS SELECT O_ORDERSTATUS,
+O_ORDERDATE, SUM(O_TOTALPRICE) SUM_PRICE FROM SNOWFLAKE_SAMPLE_DATA.
+TPCH_SF10.ORDERS GROUP BY O_ORDERSTATUS, O_ORDERDATE;
+
+-- deletes the materialized view named sample_mat_view:
+DROP MATERIALIZED VIEW sample_mat_view;
+
+-- displays details about the materialized view named sample_mat_view, such
+as its properties and metadata, if it exists:
+SHOW MATERIALIZED VIEWS LIKE 'sample_mat_view';
+
+-- retrieves and displays the metadata and structural details of the materialized view
+named sample_mat_view, such as its columns, data types, and other properties:
+DESCRIBE MATERIALIZED VIEW sample_mat_view;
+
+-- retrieves the refresh history of materialized views in Snowflake:
+SELECT * FROM TABLE(INFORMATION_SCHEMA.MATERIALIZED_VIEW_REFRESH_
+HISTORY());
+SELECT * FROM SNOWFLAKE.ACCOUNT_USAGE.MATERIALIZED_VIEW_REFRESH_
+HISTORY;

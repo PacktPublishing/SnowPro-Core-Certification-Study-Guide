@@ -1,0 +1,20 @@
+-- Create a UDF in Python that masks the email addresses, keeping only the domain part visible, as shown in the following code:
+CREATE OR REPLACE FUNCTION mask_email(email STRING)
+RETURNS STRING
+LANGUAGE PYTHON
+RUNTIME_VERSION = '3.8'
+HANDLER = 'mask_email'
+AS
+$$
+def mask_email(email):
+at_index = email.find('@')
+if at_index > 1:
+masked_email = email[0] + '***' + email[at_index-1:]
+return masked_email
+else:
+return email # Return as is if email format is
+unexpected
+$$;
+
+-- Apply the mask_email UDF in your table, which masks the email addresses, keeping only the domain part visible:
+select mask_email(email) as email from consumer_data;

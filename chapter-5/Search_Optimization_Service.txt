@@ -1,0 +1,25 @@
+-- Add the SEARCH OPTIMIZATION property to the SOS_test table:
+ALTER TABLE SOS_test ADD SEARCH OPTIMIZATION;
+
+-- You can optimize point lookups based on equality predicates for all compatible columns within the table:
+ALTER TABLE SOS_test ADD SEARCH OPTIMIZATION ON EQUALITY(*);
+
+-- It also works for specific columns:
+ALTER TABLE SOS_test ADD SEARCH OPTIMIZATION ON EQUALITY(col1,col2);
+
+-- add search optimization on the col1 column of the SOS_test table, specifically for geospatial queries involving geography objects:
+ALTER TABLE SOS_test ADD SEARCH OPTIMIZATION ON GEO(col1);
+
+-- Describe SOS
+DESCRIBE SEARCH OPTIMIZATION ON SOS_test;
+
+-- drop search optimization settings from the SOS_test table:
+-- Drop SOS for table
+ALTER TABLE SOS_test DROP SEARCH OPTIMIZATION;
+-- Drop SOS for particular column;
+ALTER TABLE SOS_test DROP SEARCH OPTIMIZATION ON col2;
+-- Drop SOS for particular method;
+ALTER TABLE SOS_test DROP SEARCH OPTIMIZATION ON EQUALITY(col1);
+
+
+

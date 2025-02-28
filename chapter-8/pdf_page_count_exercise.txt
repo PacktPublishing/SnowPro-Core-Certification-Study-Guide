@@ -1,0 +1,27 @@
+-- Create the external stage:
+create or replace stage s3_stage url="{s3 location}"
+credentials=(aws_key_id='{AWS Access Key}'
+aws_secret_key='{AWS Secret Key}');
+
+list @s3_stage;
+
+-- Create a snowflake user-defined function (UDF) to count the number of pages in the PDF:
+CREATE OR REPLACE function count_pdf_pages_udf(file_name string)
+RETURNS integer
+LANGUAGE PYTHON
+RUNTIME_VERSION = '3.8'
+PACKAGES = ('snowflake-snowpark-python','PyPDF2')
+HANDLER = 'main_fn'
+AS
+$$
+from snowflake.snowpark.files import SnowflakeFile
+import PyPDF2
+def main_fn(file_name):
+f=SnowflakeFile.open(file_name,'rb') # to get a Snowflake
+File SnowflakeFile.open is used
+pdf_object=PyPDF2.PdfReader(f); # PyPDF2 to parse pdf file
+return len(pdf_object.pages)
+$$;
+
+-- Call the procedure by creating the SCOPED_FILE_URL of the PDF from the S3 stage:
+SELECT count_pdf_pages_udf(BUILD_SCOPED_FILE_URL( @s3_stage ,'sample-1.pdf' )) as pdf_page_count;

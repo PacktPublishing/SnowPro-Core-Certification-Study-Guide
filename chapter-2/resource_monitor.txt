@@ -1,0 +1,17 @@
+-- Exercise 2.1
+-- Creating a Resource Monitor 
+CREATE RESOURCE MONITOR MyResourceMonitor
+WITH CREDIT_QUOTA = 1000
+notify_usersNOTIFY_USERS = ("steve smith", "john doe")
+FREQUENCY = MONTHLY
+START_TIMESTAMP = '2023-11-29 10:00 UTC'
+TRIGGERS on 80 percent do notify
+         on 100 percent do suspend
+         on 110 percent do suspend_immediate;
+
+-- modify resource monitor
+ALTER RESOURCE MONITOR MyResourceMonitor
+  SET CREDIT_QUOTA = 2000
+  NOTIFY_USERS = ("Jane Smith", "John Doe")
+  TRIGGERS ON 80 PERCENT DO NOTIFY
+           ON 100 PERCENT DO SUSPEND_IMMEDIATE;

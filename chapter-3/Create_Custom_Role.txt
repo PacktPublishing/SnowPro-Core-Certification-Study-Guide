@@ -1,0 +1,32 @@
+-- Exercise 3.3
+
+-- Create a user using the following command
+CREATE OR REPLACE USER ANALYST_A PASSWORD=’randompassword’
+
+-- Create a custom role using the following command
+CREATE OR REPLACE ROLE ANALYST;
+
+-- Assign some privileges to that custom role using the following code
+GRANT SELECT, INSERT ON portfolio_data TO analyst;
+
+-- Assign a role to the user using the following command
+GRANT ROLE ANALYST TO USER ANALYST_A;
+
+
+-- Bonus Exercise
+
+-- Create a database while using SYSADMIN or a higher role, as shown here
+CREATE DATABASE DataTrix_db
+
+-- Run USE DATABASE to switch to the database in which you want to create a table, as shown here
+USE DATABASE DataTrix_db
+
+--Create a table with an appropriate schema using the following code
+CREATE TABLE portfolio_data (
+  ticker_symbol varchar(10),
+  name varchar(50),
+  purchase_price decimal(10,2),
+  current_price decimal(10,2),
+  quantity integer,
+  total_invested decimal(10,2)
+);

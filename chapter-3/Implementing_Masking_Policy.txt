@@ -1,0 +1,75 @@
+-- Exercise 3.4
+
+-- Create a database and select it using the following command:
+-- Note : Ensure your role is ACCOUNTADMIN.
+USE DATABASE DataTrix_db;
+
+-- Create a table with dummy data and a schema that contains sensitive information using the following commands:
+CREATE OR REPLACE TABLE customer_data (	
+	Customer_id STRING PRIMARY KEY,
+	Contact_number STRING,
+	Email_address STRING
+);
+
+-- Insert dummy data into the table with the customer’s sensitive information, as shown here:
+INSERT OVERWRITE INTO customer_data (customer_id, contact_number, email_address)
+VALUES
+('CUST001', '1234567890', 'customer1@example.com'),
+('CUST002', '9876543210', 'customer2@example.com'),
+('CUST003', '1234567890', 'customer3@example.com'),
+('CUST004', '9876543210', 'customer4@example.com'),
+('CUST005', '1234567890', 'customer5@example.com');
+
+-- Verify whether the data is inserted as follows:
+SELECT * FROM customer_data ;
+
+-- Create a user for testing the column-level security as shown here:
+CREATE OR REPLACE USER masking_test_user password = ‘randompassword’
+
+-- Start creating roles, assign necessary privileges, and finally, assign the role to our test user; we will start with the ANALYST role using the following code:
+CREATE OR REPLACE ROLE ANALYST;
+GRANT USAGE ON DATABASE DATATRIX_DB TO ROLE ANALYST;
+GRANT USAGE ON SCHEMA DATATRIX_DB.PUBLIC TO ROLE ANALYST;
+GRANT SELECT ON TABLE DATATRIX_DB.PUBLIC.CUSTOMER_DATA TO ROLE ANALYST;
+GRANT SELECT ON TABLE DATATRIX_DB.PUBLIC.USER_REGION_MAPPING TO ROLE ANALYST;
+GRANT USAGE ON WAREHOUSE DATATRIX_WAREHOUSE TO ROLE ANALYST;
+GRANT ROLE ANALYST TO USER masking_test_user;
+
+-- Do the same for the CUSTOMER_SUPPORT role as follows:
+CREATE OR REPLACE ROLE CUSTOMER_SUPPORT;
+GRANT USAGE ON DATABASE DATATRIX_DB TO ROLE CUSTOMER_SUPPORT;
+GRANT USAGE ON SCHEMA DATATRIX_DB.PUBLIC TO ROLE CUSTOMER_SUPPORT;
+GRANT SELECT ON TABLE DATATRIX_DB.PUBLIC.CUSTOMER_DATA TO ROLE CUSTOMER_SUPPORT;
+GRANT USAGE ON WAREHOUSE DATATRIX_WAREHOUSE TO ROLE CUSTOMER_SUPPORT;
+GRANT ROLE CUSTOMER_SUPPORT TO USER masking_test_user;
+
+-- Create a masking policy based on the logic that the CUSTOMER_SUPPORT and ACCOUNTADMIN roles should be able to view the customer’s sensitive data uncensored. Use the following code:
+CREATE OR REPLACE MASKING POLICY DATATRIX_DB.PUBLIC.STRLAST4DIG
+AS (VAL VARCHAR) RETURNS VARCHAR ->
+CASE
+    WHEN CURRENT_ROLE() IN ('CUSTOMER_SUPPORT', 'ACCOUNTADMIN') THEN VAL
+    ELSE CONCAT(REPEAT('*', LEN(VAL) - 4), RIGHT(VAL, 4))
+END;
+
+
+CREATE OR REPLACE MASKING POLICY DATATRIX_DB.PUBLIC.EMAIL_MASK
+AS (VAL VARCHAR) RETURNS VARCHAR ->
+CASE
+    WHEN CURRENT_ROLE() IN ('CUSTOMER_SUPPORT', 'ACCOUNTADMIN') THEN VAL
+    ELSE CONCAT(REPEAT('*', LEN(SPLIT_PART(VAL, '@', 1)) - 2), SPLIT_PART(VAL, '@', 2))
+END;
+
+-- Apply this policy to the customer_data table’s contact_number and email_address columns, as shown here:
+ALTER TABLE IF EXISTS DATATRIX_DB.PUBLIC.CUSTOMER_DATA MODIFY COLUMN contact_number SET MASKING POLICY DATATRIX_DB.PUBLIC.STRLAST4DIG;
+
+ALTER TABLE IF EXISTS DATATRIX_DB.PUBLIC.CUSTOMER_DATA MODIFY COLUMN email_address SET MASKING POLICY DATATRIX_DB.PUBLIC.EMAIL_MASK;
+
+-- Now, log in using the user that you created for testing the masking policy using the ANALYST role and query the table to check the data:
+USE ROLE ANALYST;
+USE DATABASE DATATRIX_DB;
+SELECT * FROM CUSTOMER_DATA;
+
+-- Now, switch your role to CUSTOMER_SUPPORT and query the table again, as follows:
+USE CUSTOMER_SUPPORT;
+USE DATABASE DATATRIX_DB;
+SELECT * FROM CUSTOMER_DATA;

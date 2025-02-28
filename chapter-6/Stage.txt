@@ -1,0 +1,8 @@
+-- create a internal stage name, my_stage, with the file format as CSV and the field delimiter as follows:
+CREATE OR REPLACE STAGE my_stage FILE_FORMAT = (TYPE = 'CSV' FIELD_DELIMITER = '-');
+
+
+-- You can also use another cloud provider; the following code shows how to create a stage named my_ext_stage where the cloud provider is AWS:
+CREATE OR REPLACE STAGE my_ext_stage
+URL='s3://<bucket_name>/<optional_path>/'
+CREDENTIALS=(AWS_KEY_ID='<Your-AWS-Key>' AWS_SECRET_KEY='<Your-AWS-Secret-Key>');

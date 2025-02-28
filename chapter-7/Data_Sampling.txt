@@ -1,0 +1,5 @@
+-- Bernoulli sampling
+select * from my_table sample row (10 rows);
+
+-- system sampling
+select * from my_table sample system (10);

@@ -1,0 +1,43 @@
+-- Tasks
+-- The following code create a task named my_task that can execute at 30-minute intervals:
+CREATE TASK my_task
+WAREHOUSE = my_wh
+SCHEDULE = '30 MINUTE'
+AS
+INSERT INTO my_table(Insertion_time) VALUES(CURRENT_TIMESTAMP);
+ALTER TASK my_task RESUME; -- Start task
+ALTER TASK my_task SUSPEND; -- Stop task
+
+-- After creating the task, you need to start it by using the ALTER commands:
+CREATE TASK my_next_task
+WAREHOUSE = my_wh
+AFTER my_task
+AS
+INSERT INTO my_next_table(Insertion_time) VALUES(CURRENT_TIMESTAMP);
+
+
+
+-- Streams
+-- Create a stream on a table:
+CREATE OR REPLACE STREAM my_stream ON TABLE my_table;
+
+-- You can also query the changes directly from the stream:
+SELECT * FROM my_stream;
+
+-- You can consume the stream by inserting data from the stream into a target table:
+INSERT INTO my_table SELECT FROM my_stream;
+
+-- Standard streams track all types of data changes—inserts, updates, and deletions—made to a table:
+CREATE STREAM my_standard_stream ON TABLE my_table;
+
+-- Append-only streams are a variant of standard streams but optimized for capturing only new rows (inserts). They do not track updates or deletions:
+CREATE STREAM my_append_stream ON TABLE my_table APPEND_ONLY = TRUE;
+
+
+-- Combining Streams and Tasks: The following example shows how you can combine streams and tasks to automate the processing of data changes:
+CREATE TASK my_task
+WAREHOUSE = my_wh
+SCHEDULE = '30 MINUTE'
+WHEN SYSTEM$STREAM_HAS_DATA('my_stream')
+AS
+INSERT INTO my_table(Insertion_time) VALUES(CURRENT_TIMESTAMP);

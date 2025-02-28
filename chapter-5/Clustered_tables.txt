@@ -1,0 +1,12 @@
+-- creating table with clustering keys
+CREATE OR REPLACE TABLE table1 (col1 DATE, col2 NUMBER, col3 STRING)
+CLUSTER BY (col1, col3);
+
+-- modifying table to use clustering Keys
+ALTER TABLE table1 CLUSTER BY (col1, col2);
+
+-- To check overall clustering information, use the following:
+SELECT SYSTEM$CLUSTERING_INFORMATION('table1', '(col1, col3)');
+
+-- To check the average depth of the table based on a specified clustering key, use the following:
+SELECT SYSTEM$CLUSTERING_DEPTH('table1', '(col1, col3)')

@@ -1,0 +1,14 @@
+-- create an external stage named my_ride_data_stage, pointing to the S3 location:
+CREATE STAGE my_ride_data_stage
+URL = '@s3://my-s3-bucket/ride-data'
+STORAGE_INTEGRATION = my_s3_integration;
+
+-- define the pipe using the external stage created in the previous step:
+CREATE PIPE ride_data_pipe
+AUTO_INGEST = TRUE -- Enable automatic ingestion
+AS COPY INTO ride_data_table
+FROM @my_ride_data_stage/data.csv
+FILE_FORMAT = (TYPE = 'CSV' FIELD_DELIMITER = ',');
+
+-- Pause the ride_data_pipe pipe when you want to stop the automated data loading process:
+ALTER PIPE ride_data_pipe SET PIPE_EXECUTION_PAUSED = true;

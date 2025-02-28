@@ -1,0 +1,13 @@
+-- create sequence
+CREATE SEQUENCE order_id_seq
+START WITH 1
+INCREMENT BY 1;
+
+-- The following code is an example of how to use a sequence to generate ID values for my_table:
+CREATE OR REPLACE TABLE my_table (id NUMBER DEFAULT order_id_seq.
+NEXTVAL, phone NUMBER);
+INSERT INTO my_table (phone) VALUES (9100);
+INSERT INTO my_table (phone) VALUES (8101);
+INSERT INTO my_table (phone) VALUES (7102);
+
+SELECT * FROM my_table;

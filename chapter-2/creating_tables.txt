@@ -1,0 +1,31 @@
+-- Exercise 2.3
+-- create a sample database
+CREATE DATABASE Sample_db;
+
+-- create transient table
+CREATE OR REPLACE TRANSIENT TABLE transient_sales
+(product_id INT, quantity DECIMAL, sale_date DATE) DATA_RETENTION_TIME_IN_DAYS=1;
+
+-- create temporary table
+CREATE TEMPORARY TABLE temporary_orders
+(order_id VARCHAR(255), customer_id INT, order_date TIMESTAMP) DATA_RETENTION_TIME_IN_DAYS=1;
+
+-- create external table
+CREATE EXTERNAL TABLE ext_table
+WITH LOCATION = @my_stage
+FILE_FORMAT = (TYPE = CSV);
+
+-- create iceberg table (Note: need to change the base location)
+CREATE ICEBERG TABLE Iceburg_table
+  CATALOG='SNOWFLAKE'
+  EXTERNAL_VOLUME='myIcebergVolume'
+  BASE_LOCATION='relative/path/from/extvol/location/';
+  
+-- create directory table
+CREATE STAGE my_stage
+    FILE_FORMAT = (TYPE = CSV)
+    DIRECTORY = (ENABLE=TRUE AUTO_REFRESH=FALSE);
+
+
+-- verify the tables
+SHOW tables;

@@ -1,0 +1,81 @@
+-- Exercise 3.5
+
+-- Select the required database using the following command:
+-- Note : Ensure your role is ACCOUNTADMIN.
+USE DATABASE DataTrix_db;
+
+-- Create a table with dummy data and a schema that contains sensitive information:
+CREATE OR REPLACE TABLE sales_data (
+	Transaction_id STRING PRIMARY KEY,
+	Sales_data DATE,
+	Region STRING,
+	Product_ID STRING,
+	Customer_ID STRING,
+Sales_amount NUMBER,
+Currency STRING
+);
+
+-- Insert dummy data into the table:
+INSERT OVERWRITE INTO sales_data (Transaction_id, Sales_data, Region, Product_ID, Customer_ID, Sales_amount, Currency )
+VALUES
+('T12345', '2023-11-30', 'USA', 'PROD001', 'CUST1001', 100.00, 'USD'), 
+('T12346', '2023-12-01', 'Australia', 'PROD002', 'CUST1002', 200.00, 'AUD'), 
+('T12347', '2023-12-02', 'EU', 'PROD003', 'CUST1003', 300.00, 'EUR'), 
+('T12348', '2023-12-03', 'USA', 'PROD004', 'CUST1001', 200.00, 'USD'), 
+('T12349', '2023-12-02', 'EU', 'PROD005', 'CUST1003', 160.00, 'EUR');
+
+-- Verify whether the data is inserted using the following:
+SELECT * FROM sales_data;
+
+-- Create a region-wise user for testing the RAP based on region, as shown here:
+CREATE OR REPLACE USER US_USER_A password = ‘randompassword’;
+CREATE OR REPLACE USER EUROPE_USER_A password = ‘randompassword’;
+CREATE OR REPLACE USER AUS_USER_A password = ‘randompassword’;
+
+-- Create a user-to-region mapping table as shown here:
+CREATE OR REPLACE TABLE user_region_mapping (
+User_id STRING PRIMARY KEY,
+Region STRING
+);
+
+-- Insert the user-to-region mapping to test out various scenarios using the following code. Ensure you add your current user with 'GLOBAL' as the region since it will be useful later:
+INSERT OVERWRITE INTO user_region_mapping (user_id, region)
+VALUES
+  ('US_USER_A', 'USA'),
+  ('EUROPE_USER_A', 'EU'),
+  ('AUS_USER_A', 'Australia'),
+  ('JATIN30', 'GLOBAL');
+
+-- Create a RAP that would validate your user’s region and return a Boolean value accordingly using the following code:
+CREATE OR REPLACE ROW ACCESS POLICY region_policy
+AS (user_region STRING) RETURNS BOOLEAN ->
+CASE
+  WHEN (current_user() not in (SELECT user_id FROM user_region_mapping)) THEN FALSE
+  WHEN ('GLOBAL' = (SELECT region FROM user_region_mapping WHERE user_id = current_user())) THEN TRUE
+  WHEN EXISTS (SELECT region FROM user_region_mapping WHERE user_id = current_user() AND region = user_region) THEN TRUE
+  ELSE FALSE
+END;
+
+-- Create an appropriate role for the sales team and assign necessary privileges to that role, as shown here:
+CREATE OR REPLACE ROLE GLOBAL_SALES;
+GRANT USAGE ON DATABASE DATATRIX_DB TO ROLE GLOBAL_SALES;
+GRANT USAGE ON SCHEMA DATATRIX_DB.PUBLIC TO ROLE GLOBAL_SALES;
+GRANT SELECT ON TABLE DATATRIX_DB.PUBLIC.sales_data TO ROLE GLOBAL_SALES;
+GRANT SELECT ON TABLE DATATRIX_DB.PUBLIC.user_region_mapping TO ROLE GLOBAL_SALES;
+GRANT USAGE ON WAREHOUSE DATATRIX_WAREHOUSE TO ROLE GLOBAL_SALES;
+
+-- Assign the role to our sales users that we created in Step 5:
+GRANT ROLE GLOBAL_SALES TO USER US_USER_A;
+GRANT ROLE GLOBAL_SALES TO USER EUROPE_USER_A;
+GRANT ROLE GLOBAL_SALES TO USER AUS_USER_A;
+
+-- Apply the RAP to the sales_data table:
+ALTER TABLE sales_data ADD ROW ACCESS POLICY region_policy on (region);
+
+-- Check whether the data is still visible with your current user:
+SELECT * from sales_data;
+
+
+-- Let’s switch users to EUROPE_USER_A and query the table again:
+USE DATABASE DATATRIX_DB;
+SELECT * from sales_data;

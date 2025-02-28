@@ -1,0 +1,33 @@
+-- Create an external stage in Snowflake
+CREATE OR REPLACE STAGE s3_stage
+URL = 's3://your-s3-bucket-name/raw-data/'
+CREDENTIALS = (AWS_KEY_ID = '<your-aws-access-key-id>'
+AWS_SECRET_KEY = '<your-aws-secret-access-key>');
+
+-- Create a file format in Snowflake
+CREATE OR REPLACE FILE FORMAT csv_ff
+TYPE = 'CSV'
+FIELD_DELIMITER = ','
+SKIP_HEADER = 1; -- Assuming your CSV file has a header row
+
+-- Create a table in Snowflake
+CREATE TABLE sales_data (
+transaction_id STRING,
+region STRING,
+product STRING,
+quantity INT,
+price FLOAT,
+sale_date DATE
+);
+
+-- Load data from S3 into Snowflake table.
+COPY INTO sales_data
+FROM @s3_stage
+FILE_FORMAT = csv_ff
+PATTERN = '.*.csv'; -- Optional: Use a pattern to match specific files
+
+-- Query and analyze the data
+SELECT region, SUM(quantity * price) AS total_sales
+FROM sales_data
+GROUP BY region
+ORDER BY total_sales DESC;
